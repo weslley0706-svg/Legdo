@@ -1,26 +1,20 @@
-name: Atualizar LEGADO FC v1.5.1
+name: Manutenção LEGADO FC
 
 on:
-  push:
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  atualizar:
-    if: github.actor != 'github-actions[bot]'
+  manutencao:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Aplicar melhorias
-        run: python patch_legado.py
       - name: Validar JavaScript
-        run: node --check app.js
-      - name: Publicar atualização
         run: |
-          git config user.name "LEGADO FC Bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add app.js mobile.css sw.js
-          git commit -m "LEGADO FC v1.5.1: mobile, idade 29 e edição da base" || exit 0
-          git push
+          node --check app.js
+          node --check extension.js
+          node --check extension-v08.js
+          node --check extension-v10.js
+          node --check mobile.js
