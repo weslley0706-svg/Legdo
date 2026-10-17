@@ -1,4 +1,4 @@
-name: Importar LEGADO FC atual
+name: Atualizar LEGADO FC v1.5
 
 on:
   push:
@@ -8,31 +8,56 @@ permissions:
   contents: write
 
 jobs:
-  importar:
+  atualizar:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Importar arquivos do jogo publicado
-        shell: bash
+      - name: Aplicar melhorias
+        shell: python
         run: |
-          set -e
-          files=(index.html style.css extension.css mobile.css app.js extension.js extension-v08.js extension-v10.js mobile.js universe.js manifest.webmanifest sw.js netlify.toml README.txt)
-          for f in "${files[@]}"; do
-            echo "Buscando $f"
-            curl -fsSL "https://jogolegace.netlify.app/$f" -o "$f" || echo "Opcional ausente: $f"
-          done
-          test -s index.html
-          test -s app.js
-          mkdir -p data icons
-          curl -fsSL "https://jogolegace.netlify.app/data/game-data.js" -o data/game-data.js || true
-          curl -fsSL "https://jogolegace.netlify.app/icons/icon.svg" -o icons/icon.svg || true
-          curl -fsSL "https://jogolegace.netlify.app/icons/icon-192.png" -o icons/icon-192.png || true
-          curl -fsSL "https://jogolegace.netlify.app/icons/icon-512.png" -o icons/icon-512.png || true
-      - name: Salvar código no GitHub
+          from pathlib import Path
+          import re
+
+          p=Path('app.js')
+          s=p.read_text()
+          s=s.replace("if(real>30)p.age=29", "if(real>29)p.age=29")
+          s=s.replace("state.players=(state.players||[]).map(normalizePlayer);", "state.players=(state.players||[]).map(p=>p.youth?normalizePlayer(p):careerAgePlayer(p));")
+
+          old=re.search(r"function squad\(\)\{.*?\nfunction coachPage", s, re.S)
+          if not old:
+              raise SystemExit('squad() não encontrada')
+          new=r'''function isGeneratedYouth(p){return !!p.youth||/^Jovem\s/i.test(p.name||'')}
+function renameYouth(id){let p=state.players.find(x=>x.id===id);if(!p)return;let n=prompt('Novo nome do jogador:',p.name);if(n===null)return;n=n.trim();if(!n)return alert('Digite um nome.');p.name=n;save();render()}
+function promoteYouth(id){let p=state.players.find(x=>x.id===id);if(!p||!p.youth)return;p.youth=false;p.importance='Elenco';save();render()}
+function playerCard(p,isBase=false){return `<div class="player-card"><div class="player-main"><div><b class="player-name">${p.name}</b><div class="muted">${p.nationality||'Brasil'} · ${p.position}</div></div>${isBase?`<div class="player-actions"><button class="rename-player" onclick="renameYouth(${p.id})">✏️ Renomear</button><button class="smallbtn" onclick="promoteYouth(${p.id})">⬆ Promover</button></div>`:''}</div><div class="player-stats"><span><small>IDADE</small><b>${p.age}</b></span><span><small>OVR</small><b>${p.overall}</b></span><span><small>POT</small><b>${p.potential}</b></span><span><small>POS</small><b>${p.position}</b></span><span class="extra-stat"><small>CONDIÇÃO</small><b>${p.fitness}%</b></span><span class="extra-stat"><small>MORAL</small><b>${p.morale}</b></span><span class="extra-stat"><small>GOLS</small><b>${p.goals||0}</b></span><span class="extra-stat"><small>VALOR</small><b>${money(p.value)}</b></span></div></div>`}
+function squad(){let ps=roster().sort((a,b)=>b.overall-a.overall),ys=state.players.filter(p=>p.club===club().name&&p.youth&&p.contractStatus!=='Livre').sort((a,b)=>b.potential-a.potential);return `<div class="top"><div><div class="muted">Elenco & Base</div><h1>${club().name}</h1></div></div><div class="squad-section"><h2>Elenco profissional <span class="muted">${ps.length}</span></h2><div class="squad-list">${ps.map(p=>playerCard(p,false)).join('')}</div></div><div class="squad-section youth-section"><h2>Base <span class="muted">${ys.length}</span></h2><p class="muted">Você pode renomear os jovens gerados e promover quando quiser.</p><div class="squad-list">${ys.map(p=>playerCard(p,true)).join('')}</div></div>`}
+function coachPage'''
+          s=s[:old.start()]+new+s[old.end():]
+          p.write_text(s)
+
+          css=Path('mobile.css')
+          c=css.read_text()
+          c += r'''
+
+/* LEGADO FC v1.5 — elenco mobile e base */
+.squad-section{margin:0 0 26px}.squad-section h2{display:flex;align-items:center;gap:8px;margin:0 0 12px}.squad-list{display:grid;gap:10px}.player-card{border:1px solid #273330;background:#0d1514;border-radius:14px;padding:14px 16px}.player-main{display:flex;align-items:center;justify-content:space-between;gap:12px}.player-name{font-size:17px}.player-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.player-stats{display:grid;grid-template-columns:repeat(8,minmax(70px,1fr));gap:8px;margin-top:12px;padding-top:11px;border-top:1px solid #24302e}.player-stats span{display:flex;flex-direction:column;gap:3px}.player-stats small{font-size:9px;letter-spacing:.08em;color:#899794}.player-stats b{font-size:14px}.rename-player{border:1px solid #8e7131;background:#18160e;color:#d8b45a;border-radius:9px;padding:7px 9px;white-space:nowrap}.youth-section{padding-top:6px;border-top:1px solid #273330}
+@media(max-width:900px){.main{padding:12px 10px 20px}.top{margin:-12px -10px 12px;padding:10px 12px}.top h1{font-size:25px}.squad-list{gap:8px}.player-card{padding:12px;border-radius:12px}.player-main{align-items:flex-start}.player-name{font-size:17px}.player-stats{grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}.player-stats .extra-stat{display:none}.player-stats small{font-size:8px}.player-stats b{font-size:16px}.rename-player,.player-actions .smallbtn{font-size:11px;padding:7px 8px;min-height:34px}.side .nav button{min-width:68px;padding:9px 7px;font-size:10px}.side{padding-left:4px;padding-right:4px}.squad-section{margin-bottom:22px}}
+@media(max-width:390px){.player-card{padding:10px}.player-name{font-size:16px}.player-actions{max-width:115px}.rename-player{font-size:0}.rename-player::after{content:'✏️';font-size:15px}.side .nav button{min-width:64px}}
+'''
+          css.write_text(c)
+
+          sw=Path('sw.js')
+          if sw.exists():
+              x=sw.read_text()
+              x=re.sub(r"legado-fc-v[\w.-]+", "legado-fc-v1.5.1", x)
+              sw.write_text(x)
+      - name: Validar JavaScript
+        run: node --check app.js
+      - name: Publicar atualização no GitHub
         run: |
           git config user.name "LEGADO FC Bot"
           git config user.email "actions@users.noreply.github.com"
-          git add .
-          git commit -m "Importa código atual do LEGADO FC" || exit 0
+          git add app.js mobile.css sw.js
+          git commit -m "LEGADO FC v1.5.1: mobile, idade 29 e edição da base" || exit 0
           git push
