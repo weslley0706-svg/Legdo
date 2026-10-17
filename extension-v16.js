@@ -1,5 +1,4 @@
-// LEGADO FC v1.6 — Grupo de Clubes / Clube B
-// Mantém cada clube com caixa e elenco próprios e permite movimentação interna de jogadores.
+// LEGADO FC v1.6.1 — Grupo de Clubes / Clube B
 function ensureGroup(){
   if(!state)return;
   state.group=state.group||{name:`Grupo ${state.owner||'Legado'}`,clubs:[state.clubId]};
@@ -18,7 +17,7 @@ function createBClub(){
   state.clubs.push(b);state.group.clubs.push(id);
   state.table[id]={p:0,j:0,v:0,e:0,d:0,gp:0,gc:0,sg:0};
   state.news.unshift(`${name} foi criado e passou a integrar ${state.group.name}.`);
-  save();render();
+  save();showGroup();
 }
 function moveGroupPlayer(id,toId){
   ensureGroup();
@@ -30,7 +29,7 @@ function moveGroupPlayer(id,toId){
   state.transferLog=state.transferLog||[];
   state.transferLog.unshift({player:p.name,from:origin?.name||'Grupo',to:dest.name,value:0,date:state.date,internal:true});
   state.news.unshift(`${p.name} foi movido para ${dest.name} dentro do grupo.`);
-  save();render();
+  save();showGroup();
 }
 function groupPage(){
   ensureGroup();const clubs=groupClubs();
@@ -38,19 +37,17 @@ function groupPage(){
   const ownedNames=new Set(clubs.map(c=>c.name));
   const players=state.players.filter(p=>ownedNames.has(p.club)&&!p.youth&&p.contractStatus!=='Livre').sort((a,b)=>b.overall-a.overall);
   const rows=players.map(p=>{const current=clubs.find(c=>c.name===p.club);const opts=clubs.filter(c=>c.id!==current?.id).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');return `<tr><td><b>${p.name}</b><br><span class="muted">${p.position} · OVR ${p.overall}</span></td><td>${p.club}</td><td>${opts?`<select onchange="if(this.value)moveGroupPlayer(${p.id},this.value)"><option value="">Mover para...</option>${opts}</select>`:'—'}</td></tr>`}).join('');
-  return `<div class="top"><div><div class="muted">PROPRIEDADE MULTICLUBE</div><h1>${state.group.name}</h1></div>${clubs.some(c=>c.isBClub)?'':`<button class="btn" onclick="createBClub()">+ CRIAR CLUBE B</button>`}</div><div class="notice"><b>Grupo de Clubes:</b> jogadores podem ser movimentados entre os clubes do grupo. O Clube B começa na Série B e não poderá disputar a mesma divisão do clube principal.</div><div class="grid group-grid">${cards}</div><div class="card"><h2>Movimentação interna</h2><div class="table-wrap"><table class="table"><tr><th>Jogador</th><th>Clube atual</th><th>Destino</th></tr>${rows||'<tr><td colspan="3">Nenhum jogador disponível.</td></tr>'}</table></div></div>`;
+  return `<div class="top"><div><div class="muted">PROPRIEDADE MULTICLUBE</div><h1>${state.group.name}</h1></div>${clubs.some(c=>c.isBClub)?'':`<button class="btn" onclick="createBClub()">+ CRIAR CLUBE B</button>`}</div><div class="notice"><b>Grupo de Clubes:</b> o seu clube principal já faz parte do grupo. Crie um Clube B e movimente jogadores entre os clubes.</div><div class="grid group-grid">${cards}</div><div class="card"><h2>Movimentação interna</h2><div class="table-wrap"><table class="table"><tr><th>Jogador</th><th>Clube atual</th><th>Destino</th></tr>${rows||'<tr><td colspan="3">Nenhum jogador disponível.</td></tr>'}</table></div></div>`;
+}
+function showGroup(){
+  if(!state)return;
+  screen='group';ensureGroup();
+  document.body.innerHTML=layout(groupPage());
 }
 const v16Layout=window.layout;
 window.layout=function(content){
   let html=v16Layout(content);
   const needle=`<button onclick="exitCareer()">← Sair da carreira</button>`;
-  if(html.includes(needle))html=html.replace(needle,`<button class="${screen==='group'?'active':''}" onclick="screen='group';render()">🏢 Grupo de Clubes</button>${needle}`);
+  if(html.includes(needle))html=html.replace(needle,`<button class="${screen==='group'?'active':''}" onclick="showGroup()">🏢 Grupo de Clubes</button>${needle}`);
   return html;
-};
-const v16Render=window.render;
-window.render=function(){
-  if(appMode==='career'&&state&&screen==='group'){
-    ensureGroup();document.querySelector('#app').innerHTML=layout(groupPage());return;
-  }
-  return v16Render();
 };
