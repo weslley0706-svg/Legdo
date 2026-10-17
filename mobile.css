@@ -1,0 +1,23 @@
+/* Legado FC v1.1 — Mobile/PWA */
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}body{overscroll-behavior-y:none}button,.btn,.tab,.nav button{touch-action:manipulation}.mobile-install{display:none}
+@media(max-width:900px){
+ body{padding-bottom:calc(78px + env(safe-area-inset-bottom));background:#080b0b}
+ .shell{display:block;min-height:100dvh}.side{display:flex!important;position:fixed;left:0;right:0;top:auto;bottom:0;width:100%;height:auto;z-index:90;padding:6px 8px calc(6px + env(safe-area-inset-bottom));border:0;border-top:1px solid #313a38;background:rgba(7,11,11,.97);box-shadow:0 -12px 35px #0009;backdrop-filter:blur(16px)}
+ .side .brand,.side .savebadge,.side>small{display:none!important}.side .nav{display:flex;width:100%;gap:3px;overflow-x:auto;scrollbar-width:none}.side .nav::-webkit-scrollbar{display:none}.side .nav button{flex:0 0 auto;width:auto;min-width:74px;margin:0;padding:10px 9px;text-align:center;border-radius:10px;font-size:11px;white-space:nowrap}.side .nav button.active{box-shadow:inset 0 2px var(--gold)}
+ .main{padding:16px 12px 24px;max-width:none}.top{position:sticky;top:0;z-index:20;margin:-16px -12px 14px;padding:12px;background:rgba(8,11,11,.94);backdrop-filter:blur(14px);border-bottom:1px solid #202927}.top h1{font-size:22px}.top .actions{width:100%}.top .actions .btn{flex:1}
+ .home,.masterwrap{padding:16px 12px 30px}.homehead{gap:14px}.brand.big{font-size:26px}.welcome{padding:30px 0 22px}.welcome h1{font-size:34px}.welcome p{font-size:15px}.careergrid{grid-template-columns:1fr}.mastercard{padding:16px}
+ .grid,.clubs,.infra-grid,.sponsor-grid,.asset-grid,.split2,.neg-box{grid-template-columns:1fr!important}.wide{grid-column:auto}.card{padding:15px;border-radius:13px}.kpi b{font-size:20px}
+ .yearcalendar{grid-template-columns:repeat(2,minmax(0,1fr))}.monthcard{padding:14px}
+ .table{min-width:720px}.card:has(>.table),.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}.table th,.table td{white-space:nowrap;padding:10px 7px}
+ .filters,.editor{grid-template-columns:1fr 1fr}.searchline{align-items:stretch;flex-direction:column}.subnav,.tabs{overflow-x:auto;flex-wrap:nowrap;padding-bottom:5px;scrollbar-width:none}.subnav button,.tab{white-space:nowrap;flex:0 0 auto}
+ .market-card{grid-template-columns:1fr;gap:10px}.market-card>.actions{justify-content:flex-start}.owner-transfer{grid-template-columns:1fr}.sponsor-grid{grid-template-columns:1fr}.asset-grid{grid-template-columns:repeat(2,1fr)!important}.infra-visual{height:135px}.infra-visual .scene{font-size:42px}
+ .modal{padding:0;align-items:flex-end}.modalbox,.modalbox.xl{width:100%;max-width:none;max-height:92dvh;border-radius:20px 20px 0 0;padding:18px 14px calc(18px + env(safe-area-inset-bottom))}.modalbox .actions .btn{min-height:44px}
+ .btn{min-height:44px;padding:11px 14px}.smallbtn{min-height:38px}.actions{gap:7px}.actions .btn{flex:1 1 auto}.right{text-align:left}
+ .trophy-room{grid-template-columns:1fr 1fr}.trophy-card{padding:15px}.trophy-big{height:110px}.trophy-big img{max-height:105px}
+ .mobile-install{display:none;position:fixed;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:95;border-radius:999px;box-shadow:0 12px 32px #000b}
+ .mobile-install.show{display:block}
+}
+@media(max-width:520px){
+ .filters,.editor,.asset-grid{grid-template-columns:1fr!important}.yearcalendar{grid-template-columns:1fr 1fr}.hero h1,.welcome h1{font-size:30px}.hero{margin:0;padding:18px 12px}.hero>.brand{font-size:26px}.career-meta{gap:8px}.trophy-room{grid-template-columns:1fr}.clubmark{width:46px;height:46px}.score{font-size:30px}
+}
+@media(display-mode:standalone){.mobile-install{display:none!important}body{user-select:none}.table,input,textarea{user-select:text}}
