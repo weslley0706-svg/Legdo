@@ -19,10 +19,13 @@ jobs:
           set -e
           files=(index.html style.css extension.css mobile.css app.js extension.js extension-v08.js extension-v10.js mobile.js universe.js manifest.webmanifest sw.js netlify.toml README.txt)
           for f in "${files[@]}"; do
-            curl -fsSL "https://jogolegace.netlify.app/$f" -o "$f"
+            echo "Buscando $f"
+            curl -fsSL "https://jogolegace.netlify.app/$f" -o "$f" || echo "Opcional ausente: $f"
           done
+          test -s index.html
+          test -s app.js
           mkdir -p data icons
-          curl -fsSL "https://jogolegace.netlify.app/data/game-data.js" -o data/game-data.js
+          curl -fsSL "https://jogolegace.netlify.app/data/game-data.js" -o data/game-data.js || true
           curl -fsSL "https://jogolegace.netlify.app/icons/icon.svg" -o icons/icon.svg || true
           curl -fsSL "https://jogolegace.netlify.app/icons/icon-192.png" -o icons/icon-192.png || true
           curl -fsSL "https://jogolegace.netlify.app/icons/icon-512.png" -o icons/icon-512.png || true
@@ -31,5 +34,5 @@ jobs:
           git config user.name "LEGADO FC Bot"
           git config user.email "actions@users.noreply.github.com"
           git add .
-          git commit -m "Importa versão atual do LEGADO FC" || exit 0
+          git commit -m "Importa código atual do LEGADO FC" || exit 0
           git push
