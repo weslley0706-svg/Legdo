@@ -2,8 +2,6 @@ name: Importar LEGADO FC atual
 
 on:
   push:
-    paths:
-      - '.github/workflows/import-legado.yml'
   workflow_dispatch:
 
 permissions:
