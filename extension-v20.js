@@ -1,0 +1,11 @@
+// LEGADO FC v2.0 — artes de infraestrutura + acabamento mobile
+function infraArtV20(type,lvl){const src=type==='stadium'?'assets/infra/stadiums.svg':'assets/infra/ct.svg';const label=type==='stadium'?V19_STADIUM[lvl].label:V19_CT[lvl].label;return `<div class="infra-art-v20 level-${lvl}"><img src="${src}" alt="${label}"><div class="infra-level-v20"><small>${type==='stadium'?'ESTÁDIO':'CENTRO DE TREINAMENTO'}</small><b>NÍVEL ${lvl}/5</b><span>${label}</span></div></div>`}
+// substitui os visuais antigos por artes reais do jogo
+window.stadiumVisualV19=function(lvl,name){return `<div class="infra-name-v20"><h2>${name}</h2></div>${infraArtV20('stadium',lvl)}`};
+window.ctVisualV19=function(lvl){return infraArtV20('ct',lvl)};
+// menu mobile: 5 principais + botão Mais com todas as áreas
+function mobileMoreV20(){let old=document.getElementById('lf-more-v20');if(old){old.remove();return}let nav=document.querySelector('.side .nav');if(!nav)return;let box=document.createElement('div');box.id='lf-more-v20';box.className='more-sheet-v20';let buttons=[...nav.querySelectorAll('button')].slice(5);box.innerHTML=`<div class="more-head-v20"><b>Mais áreas</b><button onclick="mobileMoreV20()">✕</button></div><div class="more-grid-v20"></div>`;document.body.appendChild(box);let grid=box.querySelector('.more-grid-v20');buttons.forEach(b=>{let c=b.cloneNode(true);c.style.display='block';grid.appendChild(c)});}
+function ensureMoreButtonV20(){if(innerWidth>900)return;let nav=document.querySelector('.side .nav');if(!nav||nav.querySelector('.more-v20'))return;let b=document.createElement('button');b.className='more-v20';b.innerHTML='☰<span>Mais</span>';b.onclick=mobileMoreV20;nav.appendChild(b)}
+const v20Render=window.render;window.render=function(){let r=v20Render();setTimeout(ensureMoreButtonV20,0);return r};
+const v20ShowInfra=window.showInfraV19;window.showInfraV19=function(tab='stadium'){let r=v20ShowInfra(tab);setTimeout(ensureMoreButtonV20,0);return r};
+setTimeout(ensureMoreButtonV20,0);
